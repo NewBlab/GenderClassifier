@@ -108,7 +108,7 @@ with tab_results:
         if np.isnan(mean_pitch):
             st.error("⚠️ Could not detect pitch. Please try recording again in a quieter environment.")
         else:
-            gender = "Female" if mean_pitch > threshold else "Male"
+            gender = "Female👩" if mean_pitch > threshold else "Male👦"
 
             col1, col2 = st.columns(2)
             col1.metric("Mean Pitch (Hz)", f"{mean_pitch:.1f}")
