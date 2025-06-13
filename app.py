@@ -1,3 +1,12 @@
+"""
+Streamlit App: 🎙️ Gender Classifier Based on Pitch
+
+Dependencies:
+    pip install streamlit streamlit-audiorecorder librosa numpy soundfile
+
+Run:
+    streamlit run app.py
+"""
 import streamlit as st
 from audiorecorder import audiorecorder
 import io
@@ -67,17 +76,15 @@ with tab_record:
         • Once your recording shows up, proceed to the **Results** tab.
         """
     )
-    recorded_audio = audiorecorder("🔴 Record / Stop")
-
-    if recorded_audio:
+    wav_bytes = audiorecorder("🔴 Record / Stop", key="gender_sample")
+    if wav_bytes:
         wav_io = io.BytesIO()
-        recorded_audio.export(wav_io, format="wav")
+        wav_bytes.export(wav_io, format="wav")
         wav_io.seek(0)
-        audio_bytes = wav_io.getvalue()
-        st.session_state["recorded_audio"] = audio_bytes
+        st.audio(wav_io.getvalue(), format="audio/wav")
 
-        with st.expander("▶️ Play back your recording"):
-            st.audio(audio_bytes, format="audio/wav")
+        # Save to session state
+        st.session_state["recorded_audio"] = wav_io.getvalue()
         st.success("Recording captured! Head to the **Results** tab ➡️")
 
 # ─────────────── Results Tab ─────────────────────────────────────────────────────
@@ -106,11 +113,6 @@ with tab_results:
             col2.metric("Predicted Gender", gender)
 
             st.markdown(f"*Threshold used:* **{threshold} Hz**")
-
-        if st.button("🔄 Record Another Sample"):
-            if "recorded_audio" in st.session_state:
-                del st.session_state["recorded_audio"]
-            st.experimental_rerun()
 
 # ─────────────── About Tab ───────────────────────────────────────────────────────
 with tab_about:
