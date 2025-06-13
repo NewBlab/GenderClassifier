@@ -42,7 +42,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.title("🎙️ Gender Classifier")
+st.title("🎙️ Gender Classifier Based on Pitch")
 
 # ─────────────── Sidebar Settings ────────────────────────────────────────────────
 with st.sidebar:
