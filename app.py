@@ -16,7 +16,7 @@ import librosa
 
 # ─────────────── Page Config ─────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="🎙️ Gender Classifier",
+    page_title="🎙️ Gender Classifier Based on Pitch",
     page_icon="🎤",
     layout="wide",
 )
