@@ -76,30 +76,32 @@ with tab_record:
         • Once your recording shows up, proceed to the **Results** tab.
         """
     )
-    wav_bytes = audiorecorder("🔴 Record / Stop", key="gender_sample")
+    wav_bytes = audiorecorder("🔴 Record / Stop")
+
     if wav_bytes:
+        # Store the bytes in session state for later use
+        wav_io = io.BytesIO()
+        wav_bytes.export(wav_io, format="wav")
+        wav_io.seek(0)
+        st.session_state["recorded_audio"] = wav_io.getvalue()
+
         with st.expander("▶️ Play back your recording"):
-            wav_io = io.BytesIO()
-            wav_bytes.export(wav_io, format="wav")
             st.audio(wav_io.getvalue(), format="audio/wav")
         st.success("Recording captured! Head to the **Results** tab ➡️")
 
 # ─────────────── Results Tab ─────────────────────────────────────────────────────
 with tab_results:
     st.subheader("Step 2 — View results")
-    if "gender_sample" not in st.session_state or not wav_bytes:
+
+    if "recorded_audio" not in st.session_state:
         st.info("No recording detected. Please record a sample first.")
     else:
-        # Convert AudioSegment to WAV bytes
-        wav_io = io.BytesIO()
-        wav_bytes.export(wav_io, format="wav")
-        wav_io.seek(0)
-
-        # Read audio data
-        data, fs = sf.read(wav_io)
-
-        # Estimate mean pitch
         try:
+            # Read audio from session state
+            wav_io = io.BytesIO(st.session_state["recorded_audio"])
+            data, fs = sf.read(wav_io)
+
+            # Estimate pitch
             f0 = librosa.yin(data, fmin=50, fmax=500, sr=fs)
             mean_pitch = float(np.nanmean(f0))
         except Exception:
@@ -117,7 +119,7 @@ with tab_results:
             st.markdown(f"*Threshold used:* **{threshold} Hz**")
 
             if st.button("🔄 Record Another Sample"):
-                st.session_state.pop("gender_sample", None)
+                del st.session_state["recorded_audio"]
                 st.experimental_rerun()
 
 # ─────────────── About Tab ───────────────────────────────────────────────────────
